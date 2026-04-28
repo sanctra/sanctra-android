@@ -1,4 +1,4 @@
-﻿package com.sanctra.feature.net
+package com.sanctra.feature.net
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -6,6 +6,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -13,16 +14,24 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 
-class StreamClient(private val client: OkHttpClient) {
+class StreamClient(
+    private val client: OkHttpClient,
+    private val orchestratorWsUrl: String
+) {
     private var webSocket: WebSocket? = null
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _messages = MutableSharedFlow<String>()
     val messages: SharedFlow<String> = _messages
 
-    fun connect(sessionId: String, orchestratorWsUrl: String) {
+    fun connect(sessionId: String, personId: String) {
+        val url = "$orchestratorWsUrl/turn/stream".toHttpUrl().newBuilder()
+            .addQueryParameter("session_id", sessionId)
+            .addQueryParameter("person_id", personId)
+            .build()
+
         val request = Request.Builder()
-            .url("$orchestratorWsUrl/turn/stream?session_id=$sessionId")
+            .url(url)
             .build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {

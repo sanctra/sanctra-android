@@ -1,11 +1,15 @@
-﻿package com.sanctra.feature.net
+package com.sanctra.feature.net
 
-import okhttp3.*
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.json.JSONObject
 
-class OrchestratorApi(private val baseUrl: String) {
-  private val client = OkHttpClient()
-
+class OrchestratorApi(
+    private val baseUrl: String,
+    private val client: OkHttpClient = OkHttpClient()
+) {
   fun startSession(personId: String): Result<String> {
     val body = JSONObject(mapOf("person_id" to personId)).toString()
     val req = Request.Builder()

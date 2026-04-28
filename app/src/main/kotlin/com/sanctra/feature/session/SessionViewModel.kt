@@ -1,4 +1,4 @@
-﻿package com.sanctra.feature.session
+package com.sanctra.feature.session
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -19,7 +19,8 @@ class SessionViewModel(
 
     private val orchestratorApi = AppModule.orchestratorApi
     private val streamClient = AppModule.streamClient
-    
+    private val personId = "default_person" // TODO: Make person_id selectable
+
     private val audioRecorder = AudioRecorder(appContext) { audioChunk ->
         streamClient.sendAudio(audioChunk)
     }
@@ -35,8 +36,7 @@ class SessionViewModel(
     private fun startNewSession() {
         viewModelScope.launch {
             _state.update { it.copy(isConnecting = true) }
-            // TODO: Make person_id selectable
-            orchestratorApi.startSession(personId = "default_person")
+            orchestratorApi.startSession(personId = personId)
                 .onSuccess { sessionId ->
                     _state.update { it.copy(sessionId = sessionId, isConnecting = false, connected = true) }
                 }
@@ -72,7 +72,7 @@ class SessionViewModel(
             streamClient.disconnect()
             _state.update { it.copy(isRecording = false) }
         } else if (sessionId != null) {
-            streamClient.connect(sessionId)
+            streamClient.connect(sessionId, personId)
             audioRecorder.start()
             _state.update { it.copy(isRecording = true) }
         }
@@ -82,7 +82,7 @@ class SessionViewModel(
         if (text.isBlank()) return
         val userMessage = ChatMessage.User(text)
         _state.update { it.copy(transcript = it.transcript + userMessage) }
-        
+
         // TODO: Call orchestrator's text endpoint
     }
 

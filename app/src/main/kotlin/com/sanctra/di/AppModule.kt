@@ -1,4 +1,4 @@
-﻿package com.sanctra.di
+package com.sanctra.di
 
 import com.sanctra.feature.net.OrchestratorApi
 import com.sanctra.feature.net.StreamClient
