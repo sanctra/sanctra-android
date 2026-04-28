@@ -5,7 +5,6 @@ on:
   pull_request:
 
 permissions:
-  id-token: write
   contents: read
 
 jobs:
@@ -46,19 +45,19 @@ jobs:
           path: app/build/outputs/**/*.apk
 
       - name: Auth to Google Cloud (OIDC)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: false # GCS upload disabled; use headless auth/impersonation workflow
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github
           service_account: github-ci@sanctra.iam.gserviceaccount.com
 
       - name: Setup gcloud
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: false # GCS upload disabled; use headless auth/impersonation workflow
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: sanctra
 
       - name: Upload APKs to GCS
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: false # GCS upload disabled; use headless auth/impersonation workflow
         run: |
           gsutil -m rsync -r app/build/outputs/ gs://avatars-renders/android-builds/${{ github.sha }}/
